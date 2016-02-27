@@ -1,0 +1,32 @@
+{
+  "name": "itspersonal",
+  "version": "1.0.0",
+  "description": "Create users, tokens and manages logins",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/loginTest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lakowske/itspersonal.git"
+  },
+  "keywords": [
+    "Users",
+    "Login",
+    "Tokens"
+  ],
+  "author": "Seth Lakowske",
+  "license": "BSD3",
+  "bugs": {
+    "url": "https://github.com/lakowske/itspersonal/issues"
+  },
+  "homepage": "https://github.com/lakowske/itspersonal",
+  "dependencies": {
+    "sequelize": "^3.19.3",
+    "uuid": "^2.0.1"
+  },
+  "devDependencies": {
+    "sqlite3": "^3.1.1",
+    "tape": "^4.4.0"
+  }
+}
