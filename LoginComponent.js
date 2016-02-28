@@ -4,6 +4,7 @@
 
 var h = require('virtual-dom/h');
 var validEmail = require('valid-email');
+var EventEmitter  = require('events');
 
 var localStorage = window.localStorage;
 
@@ -13,12 +14,8 @@ function LoginComponent(state, emit) {
         passwordError : '',
         registerMode : false,
         loginDone: false,
-        token: localStorage.getItem('token'),        
-        channels : {
-            switchMode : switchMode,
-            login : login,
-            register : register
-        }
+        token: localStorage.getItem('token'),
+        events: new EventEmitter()
     }
 }
 
@@ -31,30 +28,33 @@ function storeField(fieldName, state) {
 function loginAction(state, emit) {
     return function(ev) {
         login(state);
-        emit('login', state);
-        emit('dirty');
+        state.events.emit('login', state);
     }
 }
 
 function registerAction(state, emit) {
     return function(ev) {
         register(state);
-        emit('register', state);
-        emit('dirty');
+        state.events.emit('register', state);
     }
 }
 
 function render(state, emit) {
-
-    return state.registerMode ?
-        renderRegister(state, emit) :
-        renderLogin(state, emit);
-
+    if (!state.loginDone) {
+        return state.registerMode ?
+            renderRegister(state, emit) :
+            renderLogin(state, emit);
+    } else {
+        var user = state.user;
+        var welcome = h('span', ['Hello, ', user.email]);
+        var logout = h('a', {href : '#', onclick: function() {state.events.emit('logout')}, style: 'float: right'}, 'Logout');
+        return [welcome, logout]
+    }
 }
 
+
 function renderLogin(state, emit) {
-    var channels = state.channels;
-    var someInput;
+
     return h('div', [
         h('fieldset',  [
             h('legend', 'Login Form'),
@@ -83,8 +83,7 @@ function renderLogin(state, emit) {
 }
 
 function renderRegister(state, emit) {
-    var channels = state.channels;
-    
+
     return h('div', [
         h('fieldset', [
             h('legend', 'Register Form'),
@@ -107,7 +106,11 @@ function renderRegister(state, emit) {
             }),            
             h('div', [
                 h('a', {
-                    href : '#'
+                    href : '#',
+                    onclick : function() {
+                        state.registerMode = !state.registerMode;
+                        emit('dirty', state);
+                    }
                 }, 'Login into existing User'),
                 h('button', {onclick: registerAction(state, emit)}, 'Register')
             ])
@@ -167,6 +170,61 @@ function resetErrors(state) {
     state.passwordError = '';
 }
 
-LoginComponent.render = render
+function onLoginResp(loginResp, loginComponent, emit) {
+    if (loginResp.loginError) {
+        loginComponent.loginDone = false;
+        loginComponent.emailError = loginResp.loginError;
+    } else {
+        loginComponent.user = loginResp.user;
+        loginComponent.loginDone = true;
+        if (loginComponent.user) { emit('user', loginComponent) }
+    }
+    loginComponent.token = loginResp.token;
+    localStorage.setItem('token', loginComponent.token);
+    emit('dirty');
+}
 
-module.exports = LoginComponent;
+/*
+ * @param state of the login component
+ * @param a dnode rpc server object with itspersonal login remote functions
+ */
+function loginHandlers(loginComponent, server, emit) {
+
+    loginComponent.events.on('register', function(registerState) {
+        server.registerUser(registerState.email, registerState.password, function(loginResp) {
+            onLoginResp(loginResp, registerState, emit);
+        })
+    })
+    
+    loginComponent.events.on('login', function(loginState) {
+        server.userLogin(loginState.email, loginState.password, function (loginResp) {
+            onLoginResp(loginResp, loginState, emit);
+        });
+    })
+    
+    loginComponent.events.on('logout', function(loginState) {
+        localStorage.setItem('token', null);
+        loginComponent.token = null;
+        loginComponent.loginDone = false;
+        emit('dirty');
+    })
+
+}
+
+function onTokenResp(tokenResp, loginComponent, emit) {
+    if (tokenResp.token !== undefined) {
+        loginComponent.token = tokenResp.token.token;
+        loginComponent.user = tokenResp.user;
+        localStorage.setItem('token', loginComponent.token);
+        loginComponent.loginDone = true;
+        if (loginComponent.user) { emit('user', loginComponent) }
+    } else {
+        loginComponent.emailError = tokenResp.loginError;
+    }
+    emit('dirty');
+}
+
+module.exports.LoginComponent = LoginComponent;
+module.exports.loginHandlers = loginHandlers;
+module.exports.onTokenResp = onTokenResp;
+module.exports.render = render;
