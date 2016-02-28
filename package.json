@@ -26,7 +26,9 @@
     "ecstatic": "^1.4.0",
     "sequelize": "^3.19.3",
     "shoe": "0.0.15",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "valid-email": "0.0.2",
+    "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
     "sqlite3": "^3.1.1",
