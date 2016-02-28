@@ -114,7 +114,7 @@ function tokenLogin(models, token, cb) {
 /*
  * Used to attach to dnode
  */
-function remoteFunctions(models) {
+function remoteFunctions(models, initState) {
     return {
         userLogin : function(email, password, cb) {
             userLogin(models, email, password, cb);
@@ -132,7 +132,7 @@ function remoteFunctions(models) {
             })
         },
         registerUser : function(email, password, cb) {
-            registerUser(models, email, password, zendo(), cb);
+            registerUser(models, email, password, initState(), cb);
         }
     }
 }
