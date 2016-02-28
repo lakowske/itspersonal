@@ -5,12 +5,15 @@
 var h = require('virtual-dom/h');
 var validEmail = require('valid-email');
 
+var localStorage = window.localStorage;
+
 function LoginComponent(state, emit) {
     return {
         emailError : '',
         passwordError : '',
         registerMode : false,
         loginDone: false,
+        token: localStorage.getItem('token'),        
         channels : {
             switchMode : switchMode,
             login : login,
@@ -164,6 +167,6 @@ function resetErrors(state) {
     state.passwordError = '';
 }
 
-LoginComponent.render    = render
+LoginComponent.render = render
 
 module.exports = LoginComponent;
