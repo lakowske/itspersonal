@@ -111,8 +111,35 @@ function tokenLogin(models, token, cb) {
 
 }
 
+/*
+ * Used to attach to dnode
+ */
+function remoteFunctions(models) {
+    return {
+        userLogin : function(email, password, cb) {
+            userLogin(models, email, password, cb);
+        },
+        userToken : function(token, cb) {
+            tokenLogin(models, token, cb);
+        },
+        updateUser : function(user, cb) {
+            models.User.update(user, { where : { email: user.email } }).then(function(updated) {
+                console.log(updated);
+                cb(updated);
+            }, function(err) {
+                console.log(err);
+                cb(false);
+            })
+        },
+        registerUser : function(email, password, cb) {
+            registerUser(models, email, password, zendo(), cb);
+        }
+    }
+}
+
 module.exports.userLogin = userLogin;
 module.exports.tokenLogin = tokenLogin;
 module.exports.UserModel = UserModel;
 module.exports.createUser = createUser;
 module.exports.registerUser = registerUser;
+module.exports.remoteFunctions = remoteFunctions;

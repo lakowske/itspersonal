@@ -22,7 +22,10 @@
   },
   "homepage": "https://github.com/lakowske/itspersonal",
   "dependencies": {
+    "dnode": "^1.2.2",
+    "ecstatic": "^1.4.0",
     "sequelize": "^3.19.3",
+    "shoe": "0.0.15",
     "uuid": "^2.0.1"
   },
   "devDependencies": {
