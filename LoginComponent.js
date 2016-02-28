@@ -2,10 +2,6 @@
  * (C) 2016 Seth Lakowske
  */
 
-/*
- * (C) 2016 Seth Lakowske
- */
-
 var h = require('virtual-dom/h');
 var validEmail = require('valid-email');
 
@@ -14,6 +10,7 @@ function LoginComponent(state, emit) {
         emailError : '',
         passwordError : '',
         registerMode : false,
+        loginDone: false,
         channels : {
             switchMode : switchMode,
             login : login,
@@ -170,4 +167,3 @@ function resetErrors(state) {
 LoginComponent.render    = render
 
 module.exports = LoginComponent;
-
