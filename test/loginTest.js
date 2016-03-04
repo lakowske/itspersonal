@@ -25,6 +25,17 @@ function createSeth(models, t, fn) {
     });
 }
 
+test('password hash', function(t) {
+
+    var time = Date.now();
+    var result = login.hashTimes('mepassword', 'lakowske@gmail.com', 1000);
+    var result2 = login.hashTimes('mepassword', 'lakowske@gmail.com', 1000);
+    var time2 = Date.now();
+    t.equal(result, result2, 'password hash is correct');
+    console.log('hashing took ' + (time2 - time));
+    t.end();
+})
+
 test('can create user', function(t) {
     var db = testDB();
 

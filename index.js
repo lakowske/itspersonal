@@ -4,6 +4,21 @@
 
 var uuid      = require('uuid');
 var Sequelize = require('Sequelize');
+var crypto    = require('crypto');
+
+var hash = crypto.createHash('sha256');
+
+var passwordRounds = 1000;
+
+function hashTimes(password, salt, times) {
+    var digest = password + salt;
+    for (var i = 0 ; i < times ; i++) {
+        var hash = crypto.createHash('sha256');
+        hash.update(digest);
+        digest = hash.digest('hex');
+    }
+    return digest;
+}
 
 function UserModel(sequelize, models) {
 
@@ -46,12 +61,14 @@ function UserModel(sequelize, models) {
 }
 
 function createUser(models, email, password, userid, firstName, lastName, state) {
+    var hashedPassword = hashTimes(password, email, passwordRounds);
+    
     return models.User.create({
         userid: userid,
         firstName: firstName,
         lastName: lastName,
         email: email,
-        password: password,
+        password: hashedPassword,
         state: state
     });
 }
@@ -64,7 +81,8 @@ function registerUser(models, email, password, state, cb) {
 
 function userLogin(models, email, password, cb) {
     models.User.findOne({where: { email: email }}).then(function(user) {
-        if (user && user.password === password) {
+        var hashedPassword = hashTimes(password, email, passwordRounds);
+        if (user && user.password === hashedPassword) {
             
             var state = {
                 user:user.dataValues,
@@ -137,6 +155,7 @@ function remoteFunctions(models, initState) {
     }
 }
 
+module.exports.hashTimes = hashTimes;
 module.exports.userLogin = userLogin;
 module.exports.tokenLogin = tokenLogin;
 module.exports.UserModel = UserModel;

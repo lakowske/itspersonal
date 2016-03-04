@@ -124,7 +124,8 @@ function labeledInput(label, opts) {
             className: opts.error ? 'errorClass' : ''
         }, [
             label,
-            h('input', opts)
+            h('br'),
+            h('input', opts)            
         ]),
         h('div', {
             className: 'errorClass'
