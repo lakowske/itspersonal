@@ -1,5 +1,5 @@
 # itspersonal
-Creates users, tokens and manages logins.  Uses sequelize to persist users to relational databases.
+Uses sequelize to persist users to relational databases.  Creates users, tokens and manages logins.
 
 # Import
 ``` js
