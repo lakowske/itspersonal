@@ -10,7 +10,7 @@ var Sequelize = require('sequelize');
  * @param engine to use (e.g. postgres, mysql, etc.)
  * @return a connection string.
  */
-function build(engine, host, db, config) {
+function build(engine, host, db, config, options) {
     var user = process.env['USER']
     if (config && config.user) user = config.user;
 
@@ -20,6 +20,8 @@ function build(engine, host, db, config) {
         connection = engine+'://'+user+':'+config.pass+'@'+host+'/'+db;
     }
 
+    if (options)
+        return new Sequelize(connection, options);
     return new Sequelize(connection);
 }
 
